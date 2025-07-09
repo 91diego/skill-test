@@ -1,8 +1,9 @@
 const { app } = require("./app.js");
-const { env } = require("./config");
+const { env, db } = require("./config");
 
 const PORT = env.PORT;
+const DB = env.DATABASE_URL;
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);                                                                                                                                                
+  console.log(`Server running on port ${PORT}`);
 });

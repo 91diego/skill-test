@@ -1,0 +1,67 @@
+version: "3.8"
+
+services:
+  school-db:
+    image: postgres:16
+    container_name: school-db
+    environment:
+      POSTGRES_USER: postgres #admin@school-admin.com
+      POSTGRES_PASSWORD: postgres #3OU4zn3q6Zh9
+      POSTGRES_DB: school_mgmt
+    ports:
+      - "5440:5432"
+    restart: always
+    networks:
+      - dev_network
+
+  migration-runner:
+    image: postgres:16
+    depends_on:
+      - school-db
+    volumes:
+      - ./seed_db:/docker-entrypoint-initdb.d
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: school_mgmt
+    entrypoint: >
+      bash -c "
+        echo 'Wating for PostgreSQL...' &&
+        until pg_isready -h school-db -p 5432; do sleep 1; done &&
+        echo 'Executing migrations...' &&
+        PGPASSWORD=postgres psql -h school-db -U postgres -d school_mgmt -f /docker-entrypoint-initdb.d/tables.sql &&
+        PGPASSWORD=postgres psql -h school-db -U postgres -d school_mgmt -f /docker-entrypoint-initdb.d/seed-db.sql
+      "
+    networks:
+      - dev_network
+
+  backend-api:
+    container_name: backend-api
+    build:
+      context: ./backend
+      dockerfile: dockerfile
+    ports:
+      - "5007:5007"
+    networks:
+      - dev_network
+    restart: always
+    environment:
+      NODE_ENV: development
+      PORT: 5007
+
+  go-service:
+    container_name: go-service
+    build:
+      context: ./go-service
+      dockerfile: dockerfile
+    ports:
+      - "8081:8081"
+    networks:
+      - dev_network
+    restart: always
+    env_file:
+      - ./go-service/.env
+
+networks:
+  dev_network:
+    driver: bridge

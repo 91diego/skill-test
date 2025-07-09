@@ -34,7 +34,16 @@ const EMAIL_NOT_VERIFIED =
 const USER_ALREADY_ACTIVE = "User already in active status. Please login.";
 const UNABLE_TO_VERIFY_EMAIL = "Unable to verify email";
 const login = async (username, passwordFromUser) => {
-  const client = await db.connect();
+  //const client = await db.connect();
+
+  let client;
+  try {
+    client = await db.connect();
+    console.log("✅ Conexión a la base de datos establecida correctamente");
+  } catch (err) {
+    console.error("❌ Error al conectar con la base de datos:", err);
+    throw new ApiError(500, "Error interno al conectar con la base de datos");
+  }
   try {
     await client.query("BEGIN");
 
