@@ -5,8 +5,8 @@ services:
     image: postgres:16
     container_name: school-db
     environment:
-      POSTGRES_USER: postgres #admin@school-admin.com
-      POSTGRES_PASSWORD: postgres #3OU4zn3q6Zh9
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
       POSTGRES_DB: school_mgmt
     ports:
       - "5440:5432"
